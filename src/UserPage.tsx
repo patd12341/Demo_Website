@@ -17,12 +17,10 @@ export default function UserPage() {
       }
 
       try {
-        const normalizedName = name.toLowerCase();
-
         const { data: existingProfile } = await supabase
           .from('profiles')
           .select('firstName, fullName')
-          .eq('firstName', normalizedName)
+          .ilike('firstName', name)
           .maybeSingle();
 
         if (existingProfile) {
