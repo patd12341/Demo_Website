@@ -4,6 +4,9 @@ import { hasSupabaseConfig } from './lib/supabase';
 import HomePage from './HomePage';
 import UserPage from './UserPage';
 
+const public_key = '59fa6018-bb58-4e3c-9223-e9f9108ff147';
+const assistant_ID = 'e6de9ec9-9b82-431a-9482-859ed63e82d1';
+
 function App() {
   if (!hasSupabaseConfig) {
     return (
