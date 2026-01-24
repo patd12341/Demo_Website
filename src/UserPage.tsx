@@ -10,7 +10,7 @@ export default function UserPage() {
   const [displayName, setDisplayName] = useState('');
 
   useEffect(() => {
-    async function checkAndCreateUser() {
+    async function checkAndFetchProfile() {
       if (!name || !supabase) {
         setIsLoading(false);
         return;
@@ -19,40 +19,27 @@ export default function UserPage() {
       try {
         const normalizedName = name.toLowerCase();
 
-        const { data: existingUser } = await supabase
-          .from('users')
-          .select('first_name')
-          .eq('first_name', normalizedName)
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('firstName, fullName')
+          .eq('firstName', normalizedName)
           .maybeSingle();
 
-        if (existingUser) {
+        if (existingProfile) {
           setUserExists(true);
-          setDisplayName(existingUser.first_name);
-
-          await supabase
-            .from('users')
-            .update({ last_visited: new Date().toISOString() })
-            .eq('first_name', normalizedName);
+          setDisplayName(existingProfile.firstName);
         } else {
-          const { data: newUser, error } = await supabase
-            .from('users')
-            .insert([{ first_name: normalizedName }])
-            .select()
-            .single();
-
-          if (!error && newUser) {
-            setUserExists(true);
-            setDisplayName(newUser.first_name);
-          }
+          setUserExists(false);
         }
       } catch (error) {
-        console.error('Error handling user:', error);
+        console.error('Error fetching profile:', error);
+        setUserExists(false);
       } finally {
         setIsLoading(false);
       }
     }
 
-    checkAndCreateUser();
+    checkAndFetchProfile();
   }, [name]);
 
   const capitalize = (str: string) => {
@@ -74,8 +61,8 @@ export default function UserPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-red-50/30 to-slate-100 flex items-center justify-center px-4">
         <div className="max-w-xl w-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/50 p-10 text-center">
-          <h1 className="text-3xl font-bold text-slate-900 mb-4">User Not Found</h1>
-          <p className="text-slate-600 mb-6">We couldn't find or create this user page.</p>
+          <h1 className="text-3xl font-bold text-slate-900 mb-4">Profile Not Found</h1>
+          <p className="text-slate-600 mb-6">This profile doesn't exist in our database yet.</p>
           <Link
             to="/"
             className="inline-flex items-center gap-2 px-6 py-3 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition-all font-medium"
